@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="img/corazon.gif" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles&family=Wendy+One&display=swap" rel="stylesheet">
+    <title>xx/x/xxxx</title>
+    <style>
+        *{
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+            font-family: "Fuzzy Bubbles", serif;
+            color: white;
+            text-shadow: 1px 1px 8px white;
+        }
+        html{
+            scroll-behavior: smooth;
+            font-weight: 400;
+            font-style: normal;
+        }
+        html::-webkit-scrollbar{
+            width: 1px;
+        background-color: #0f0c29;
+        }
+        html::-webkit-scrollbar-thumb{
+            border-radius: 10px;
+            background-color: #24243e;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+
+            background: #3A1C71;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to top, hsla(24, 100%, 74%, 0.407), hsla(354, 57%, 64%, 0.67), hsla(261, 59%, 28%, 0.856)), url(./img/f2.jpg);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to top, hsl(24, 100%, 74%, 0.407), hsl(354, 57%, 64%, 0.67), hsl(261, 60%, 28%, 0.856)), url(./img/f2.jpg); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        #upload {
+            margin: 2px;
+        }
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            width: 90vw;
+            height: 90vh;
+            /* From https://css.glass */
+            background: rgba(255, 255, 255, 0.13);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(3.8px);
+            -webkit-backdrop-filter: blur(3.8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+        .piece {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            background-size: cover;
+            background-position: center;
+            transition-duration: 1s;
+        }
+        .piece:hover{
+            scale: 1.3;
+            filter: drop-shadow(1px 1px 5px black);
+        }
+        .ventana{
+background: rgba(255, 255, 255, 0.2);
+border-radius: 4px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(5px);
+-webkit-backdrop-filter: blur(5px);
+border: 1px solid rgba(255, 255, 255, 0.3);
+color: white;
+}
+.footer-alert{
+    color: black;
+}
+.btn-acept{
+    background-color: black;
+    transition: .90s;
+}
+.btn-acept:hover{
+    background-color: white;
+    color: black;
+    transition: .90s;
+}
+    </style>
+</head>
+<body>
+    <h1>TU SORPRESA ESPERA...</h1>
+    <input type="file" id="upload" accept="image/*" multiple>
+    <div id="puzzle-container"></div>
+    
+    <script>
+        document.getElementById('upload').addEventListener('change', function(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 16) {
+                createPuzzle(files);
+                document.getElementById('upload').style.display = 'none';
+            } else {
+                alert('Debes subir exactamente 16 imágenes.');
+            }
+        });
+        
+        function createPuzzle(files) {
+            const container = document.getElementById('puzzle-container');
+            container.innerHTML = '';
+            let positions = Array.from({ length: 16 }, (_, i) => i);
+            positions.sort(() => Math.random() - 0.5);
+            
+            let shuffledFiles = [...files];
+            shuffledFiles.sort(() => Math.random() - 0.5);
+            
+            positions.forEach((pos, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const piece = document.createElement('div');
+                    piece.classList.add('piece');
+                    piece.style.backgroundImage = `url(${e.target.result})`;
+                    piece.dataset.index = index;
+                    piece.setAttribute('draggable', true);
+                    piece.addEventListener('dragstart', dragStart);
+                    piece.addEventListener('dragover', dragOver);
+                    piece.addEventListener('drop', drop);
+                    container.appendChild(piece);
+                };
+                reader.readAsDataURL(shuffledFiles[index]);
+            });
+        }
+        
+        let draggedPiece = null;
+        
+        function dragStart(event) {
+            draggedPiece = event.target;
+        }
+        
+        function dragOver(event) {
+            event.preventDefault();
+        }
+        
+        function drop(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('piece')) {
+                let tempBg = event.target.style.backgroundImage;
+                event.target.style.backgroundImage = draggedPiece.style.backgroundImage;
+                draggedPiece.style.backgroundImage = tempBg;
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/swett.js"></script>
+</body>
+</html>
